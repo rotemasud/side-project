@@ -1,0 +1,22 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: side-project-virtualservice
+  namespace: default
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - side-prjoect-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: side-project
+        port:
+          number: 8080
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
