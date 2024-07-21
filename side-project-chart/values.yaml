@@ -104,6 +104,14 @@ nodeSelector: {}
 
 tolerations: []
 
+topologySpreadConstraints:
+  - labelSelector:
+      matchLabels:
+        app: example-service
+    maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+
 affinity:
   podAntiAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:

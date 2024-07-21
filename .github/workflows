@@ -1,0 +1,38 @@
+name: Build Side Project
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Build Docker image
+        run: docker build . -t side-project:latest
+
+      - name: Build Chart
+        run: helm package side-project-chart 
+               
+    push: 
+
+      - name: push to EKS cluster
+        run: echo "pushing to EKS ....."
+                 
+     
+
+   
+
