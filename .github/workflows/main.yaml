@@ -3,7 +3,6 @@ name: Build Side Project
 on:
   push:
     branches:
-      - dev
       - main
 jobs:
   build:
@@ -18,34 +17,34 @@ jobs:
       full_image: ${{ steps.build-publish.outputs.full_image }}
 
   steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::256344107989:role/GitHubActionsRole
-          aws-region: il-central-1
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::256344107989:role/GitHubActionsRole
+        aws-region: il-central-1
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-        with:
-          registries: side-project-test
-          mask-password: "true" # see: https://github.com/aws-actions/amazon-ecr-login#docker-credentials
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+      with:
+        registries: side-project-test
+        mask-password: "true" # see: https://github.com/aws-actions/amazon-ecr-login#docker-credentials
 
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-publish
-        shell: bash
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ECR_REPO_NAME
-          IMAGE_TAG: latest
-        run: |
-          docker build . -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
-          echo "image_tag=$IMAGE_TAG" 
-          echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-publish
+      shell: bash
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ECR_REPO_NAME
+        IMAGE_TAG: latest
+      run: |
+        docker build . -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
+        echo "image_tag=$IMAGE_TAG" 
+        echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
                  
      
 
