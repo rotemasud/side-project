@@ -20,8 +20,10 @@ jobs:
     outputs:
       image_tag: ${{ steps.build-publish.outputs.image_tag }}
       full_image: ${{ steps.build-publish.outputs.full_image }}
+
     steps:
-      - uses: actions/checkout@v3
+      - name: checkout code
+        uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -50,11 +52,11 @@ jobs:
           echo "image_tag=$IMAGE_TAG" 
           echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Package Helm Chart and push to Amazon ECR
+      - name: Package Helm Chart and push chart to Amazon ECR
+        shell: bash
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: side-project-chart
         run : |
           helm package side-project-chart --app-version ${{ inputs.tag_name }} --version ${{ inputs.tag_name }}
           helm push "side-project-chart-${{ inputs.tag_name }}.tgz" oci://$ECR_REGISTRY
-        shell: bash
