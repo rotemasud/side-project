@@ -1,9 +1,10 @@
 name: Build Side Project
 
 on:
-  push:
+  workflow_dispatch:
     branches:
       - main
+      - dev
 jobs:
   build:
     runs-on: ubuntu-latest
