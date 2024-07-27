@@ -56,5 +56,5 @@ jobs:
           ECR_REPOSITORY: side-project-test
         run : |
           helm package side-project-chart --app-version ${{ inputs.tag_name }} --version ${{ inputs.tag_name }}
-          helm push "$ECR_REPOSITORY-${{ inputs.tag_name }}.tgz" oci://$ECR_REGISTRY
+          helm push "side-project-chart-${{ inputs.tag_name }}.tgz" oci://$ECR_REGISTRY
         shell: bash
