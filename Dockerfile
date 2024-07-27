@@ -14,7 +14,7 @@ RUN mkdir /app && chown -R appuser /app
 
 USER 1000
 
-COPY --from=builder /usr/src/app/target/side-project-0.0.1-SNAPSHOT.jar /app/app.jar
+COPY --from=builder /usr/src/app/target/side-project-1.jar /app/app.jar
 
 WORKDIR /app
 
