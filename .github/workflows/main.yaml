@@ -6,6 +6,9 @@ on:
       aws_account_id:
         description: AWS Account ID
         type: string  
+      tag_name:
+        type: string 
+        description: tag name
 jobs:
   build_and_push_to_ecr:
     runs-on: ubuntu-latest
