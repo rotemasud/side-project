@@ -49,13 +49,12 @@ jobs:
           echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
           echo "image_tag=$IMAGE_TAG" 
           echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          helm package --app-version ${{ inputs.tag-name }} --version ${{ inputs.tag-name }}
 
       - name: Package Helm Chart
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ inputs.ecr-repository-name }}
         run : |
-          helm package --app-version ${{ inputs.tag-name }} --version ${{ inputs.tag-name }}
+          helm package side-project-chart --app-version ${{ inputs.tag-name }} --version ${{ inputs.tag-name }}
           helm push "$ECR_REPOSITORY-${{ inputs.tag-name }}.tgz" oci://$ECR_REGISTRY
         shell: bash
