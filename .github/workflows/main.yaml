@@ -1,4 +1,4 @@
-name: Build Side Project
+name: Side Project Workflow
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
         description: AWS Account ID
         type: string  
 jobs:
-  build:
+  build_and_push_to_ecr:
     runs-on: ubuntu-latest
 
     permissions:
@@ -46,6 +46,10 @@ jobs:
           echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
           echo "image_tag=$IMAGE_TAG" 
           echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          helm package \
+          --app-version ${{ inputs.tag-name }} \
+          --version ${{ inputs.tag-name }}
+          helm push "${{ ECR_REPOSITORY }}-${{ inputs.tag-name }}.tgz" oci://$ECR_REGISTRY
                  
      
 
