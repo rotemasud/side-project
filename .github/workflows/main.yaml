@@ -57,5 +57,5 @@ jobs:
           ECR_REPOSITORY: ${{ inputs.ecr-repository-name }}
         run : |
           helm package --app-version ${{ inputs.tag-name }} --version ${{ inputs.tag-name }}
-          helm push "${{ ECR_REPOSITORY }}-${{ inputs.tag-name }}.tgz" oci://$ECR_REGISTRY
+          helm push "$ECR_REPOSITORY-${{ inputs.tag-name }}.tgz" oci://$ECR_REGISTRY
         shell: bash
