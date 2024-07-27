@@ -2,9 +2,10 @@ name: Build Side Project
 
 on:
   workflow_dispatch:
-    branches:
-      - main
-      - dev
+    inputs:
+      aws_account_id:
+        description: AWS Account ID
+        type: string  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,7 +30,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
         with:
-          registries: side-project-test
+          registries:  ${{ inputs.aws_account_id }}
           mask-password: "true" # see: https://github.com/aws-actions/amazon-ecr-login#docker-credentials
 
       - name: Build, tag, and push image to Amazon ECR
