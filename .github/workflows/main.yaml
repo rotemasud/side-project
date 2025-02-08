@@ -60,3 +60,16 @@ jobs:
         run : |
           helm package side-project-chart --app-version ${{ inputs.tag_name }} --version ${{ inputs.tag_name }}
           helm push "side-project-chart-${{ inputs.tag_name }}.tgz" oci://$ECR_REGISTRY
+
+
+      - name: Deploy Helm Chart to EKS Cluster
+        id: deploy-helm
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        uses: aws-actions/eks-kubectl-action@v1
+        with:
+          cluster-name: side-project-cluster
+          role-to-assume: arn:aws:iam::256344107989:role/GitHubActionsRole
+          aws-region: il-central-1
+          helm: |
+            upgrade --install side-project-release $ECR_REGISTRY/side-project-chart:latest
