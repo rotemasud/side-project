@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "side-project-chart.fullname" . }}
+  name: side-project-service-1
   labels:
     {{- include "side-project-chart.labels" . | nindent 4 }}
 spec:
