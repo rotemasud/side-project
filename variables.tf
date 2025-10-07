@@ -91,5 +91,5 @@ variable "karpenter_enabled" {
 variable "karpenter_values_file" {
   description = "Path to Karpenter Helm values.yaml"
   type        = string
-  default     = "${path.root}/karpenter.yaml"
+  default     = null
 }

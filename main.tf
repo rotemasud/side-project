@@ -1,5 +1,6 @@
 provider "aws" {
-  region = var.region
+  region = "il-central-1"
+  
 }
 
 terraform {
@@ -109,6 +110,9 @@ module "eks" {
 
   karpenter_enabled     = var.karpenter_enabled
   karpenter_values_file = var.karpenter_values_file
+  karpenter_controller_role_arn   = aws_iam_role.karpenter_controller.arn
+  karpenter_interruption_queue_name = aws_sqs_queue.karpenter_interruption.name
+  aws_region = var.region
 }
 
 data "aws_eks_cluster" "this" {

@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    helm = {
+      source = "hashicorp/helm"
+    }
+  }
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.8.5"
@@ -33,6 +41,10 @@ output "cluster_certificate_authority_data" {
   value = module.eks.cluster_certificate_authority_data
 }
 
+output "cluster_security_group_id" {
+  value = module.eks.cluster_security_group_id
+}
+
 variable "karpenter_enabled" {
   description = "Install Karpenter via Helm"
   type        = bool
@@ -61,9 +73,53 @@ resource "helm_release" "karpenter" {
 
   create_namespace = true
 
-  values = var.karpenter_values_file != null ? [file(var.karpenter_values_file)] : []
+  values = concat(
+    var.karpenter_values_file != null ? [file(var.karpenter_values_file)] : [],
+    [yamlencode({
+      serviceAccount = {
+        create = true
+        name   = "karpenter"
+        annotations = var.karpenter_controller_role_arn != null ? {
+          "eks.amazonaws.com/role-arn" = var.karpenter_controller_role_arn
+        } : {}
+      }
+      settings = {
+        clusterName = var.cluster_name
+      }
+      controller = {
+        env = [
+          {
+            name  = "AWS_REGION"
+            value = var.aws_region
+          },
+          {
+            name  = "AWS_DEFAULT_REGION"
+            value = var.aws_region
+          }
+        ]
+      }
+      interruptionQueue = var.karpenter_interruption_queue_name
+    })]
+  )
 
   depends_on = [module.eks]
+}
+
+variable "karpenter_controller_role_arn" {
+  description = "IAM role ARN for Karpenter controller service account (IRSA)"
+  type        = string
+  default     = null
+}
+
+variable "karpenter_interruption_queue_name" {
+  description = "SQS queue name for Karpenter interruption handling"
+  type        = string
+  default     = null
+}
+
+variable "aws_region" {
+  description = "AWS region for Karpenter controller"
+  type        = string
 }
 
 variable "cluster_name" { type = string }

@@ -14,6 +14,10 @@ output "eks_oidc_provider" {
   value = module.eks.oidc_provider
 }
 
+output "eks_cluster_security_group_id" {
+  value = module.eks.cluster_security_group_id
+}
+
 output "irsa_ebs_csi_role_arn" {
   value = module.irsa_ebs_csi.iam_role_arn
 }

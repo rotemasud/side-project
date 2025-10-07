@@ -36,13 +36,13 @@ spec:
 apiVersion: karpenter.k8s.aws/v1beta1
 kind: EC2NodeClass
 metadata:
-  name: side-prjoect
+  name: side-project
 spec:
   amiFamily: AL2 # Amazon Linux 2
-  role: "KarpenterNodeRole-side-project" # replace with your cluster name
+  role: "KarpenterNodeRole-side-project-eks" # Must match node role created by Terraform
   subnetSelectorTerms:
     - tags:
-        karpenter.sh/discovery: "side-project" # replace with your cluster name
+        karpenter.sh/discovery: "side-project-eks"
   securityGroupSelectorTerms:
     - tags:
-        karpenter.sh/discovery: "side-project" # replace with your cluster name
+        karpenter.sh/discovery: "side-project-eks"
