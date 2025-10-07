@@ -1,11 +1,12 @@
+{{- if .Values.istio.enabled }}
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: side-project-gateway
-  namespace: default
+  name: {{ include "side-project-chart.fullname" . }}-gateway
+  namespace: {{ .Values.istio.namespace | default .Release.Namespace }}
 spec:
   selector:
-    istio: ingressgateway # use istio default controller
+    istio: {{ .Values.istio.ingressSelector | default "ingressgateway" }}
   servers:
   - port:
       number: 80
@@ -13,3 +14,4 @@ spec:
       protocol: HTTP
     hosts:
     - "*"
+{{- end }}

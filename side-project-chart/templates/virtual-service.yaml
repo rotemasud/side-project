@@ -1,22 +1,24 @@
+{{- if .Values.istio.enabled }}
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: side-project-virtualservice
-  namespace: default
+  name: {{ include "side-project-chart.fullname" . }}-vs
+  namespace: {{ .Values.istio.namespace | default .Release.Namespace }}
 spec:
   hosts:
   - "*"
   gateways:
-  - side-prjoect-gateway
+  - {{ include "side-project-chart.fullname" . }}-gateway
   http:
   - match:
     - uri:
         prefix: /
     route:
     - destination:
-        host: side-project
+        host: {{ include "side-project-chart.fullname" . }}
         port:
-          number: 8080
+          number: {{ .Values.service.port }}
     retries:
-      attempts: 3
-      perTryTimeout: 2s
+      attempts: {{ .Values.istio.retries.attempts | default 3 }}
+      perTryTimeout: {{ .Values.istio.retries.perTryTimeout | default "2s" }}
+{{- end }}

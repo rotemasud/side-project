@@ -36,7 +36,7 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-  cluster_name = "side-project-eks"
+  cluster_name = var.cluster_name
 }
 
 resource "random_string" "suffix" {
@@ -45,20 +45,19 @@ resource "random_string" "suffix" {
 }
 
 module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "5.8.1"
+  source = "./modules/vpc"
 
-  name = "my-vpc"
+  name = var.vpc_name
 
-  cidr = "10.0.0.0/16"
+  cidr = var.vpc_cidr
   azs  = slice(data.aws_availability_zones.available.names, 0, 3)
 
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  private_subnets = var.vpc_private_subnets
+  public_subnets  = var.vpc_public_subnets
 
-  enable_nat_gateway   = true
-  single_nat_gateway   = true
-  enable_dns_hostnames = true
+  enable_nat_gateway   = var.vpc_enable_nat_gateway
+  single_nat_gateway   = var.vpc_single_nat_gateway
+  enable_dns_hostnames = var.vpc_enable_dns_hostnames
 
   public_subnet_tags = {
     "kubernetes.io/role/elb" = 1
@@ -70,18 +69,21 @@ module "vpc" {
 }
 
 module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "20.8.5"
+  source = "./modules/eks"
+
+  providers = {
+    helm = helm.eks
+  }
 
   cluster_name    = local.cluster_name
-  cluster_version = "1.29"
+  cluster_version = var.cluster_version
 
   cluster_endpoint_public_access           = true
   enable_cluster_creator_admin_permissions = true
 
   cluster_addons = {
     aws-ebs-csi-driver = {
-      service_account_role_arn = module.irsa-ebs-csi.iam_role_arn
+      service_account_role_arn = module.irsa_ebs_csi.iam_role_arn
     }
   }
 
@@ -97,34 +99,56 @@ module "eks" {
     one = {
       name = "node-group-1"
 
-      instance_types = ["t3.small"]
+      instance_types = var.node_group_instance_types
 
-      min_size     = 1
-      max_size     = 3
-      desired_size = 2
+      min_size     = var.node_group_min_size
+      max_size     = var.node_group_max_size
+      desired_size = var.node_group_desired_size
     }
-    }
+  }
+
+  karpenter_enabled     = var.karpenter_enabled
+  karpenter_values_file = var.karpenter_values_file
+}
+
+data "aws_eks_cluster" "this" {
+  name       = local.cluster_name
+  depends_on = [module.eks]
+}
+
+data "aws_eks_cluster_auth" "this" {
+  name       = local.cluster_name
+  depends_on = [module.eks]
+}
+
+provider "kubernetes" {
+  alias                  = "eks"
+  host                   = data.aws_eks_cluster.this.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.this.token
+}
+
+provider "helm" {
+  alias = "eks"
+  
+  kubernetes {
+    host                   = data.aws_eks_cluster.this.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
+    token                  = data.aws_eks_cluster_auth.this.token
+  }
 }
 
 # https://aws.amazon.com/blogs/containers/amazon-ebs-csi-driver-is-now-generally-available-in-amazon-eks-add-ons/ 
-data "aws_iam_policy" "ebs_csi_policy" {
-  arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-}
+module "irsa_ebs_csi" {
+  source = "./modules/irsa-ebs-csi"
 
-module "irsa-ebs-csi" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "5.39.0"
-
-  create_role                   = true
-  role_name                     = "AmazonEKSTFEBSCSIRole-${module.eks.cluster_name}"
-  provider_url                  = module.eks.oidc_provider
-  role_policy_arns              = [data.aws_iam_policy.ebs_csi_policy.arn]
-  oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
+  cluster_name = module.eks.cluster_name
+  provider_url = module.eks.oidc_provider
 }
 
 
 module "ecr" {
-  source      = "./modules/ecr"
+  source = "./modules/ecr"
 }
 
 

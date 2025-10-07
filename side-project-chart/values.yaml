@@ -107,7 +107,8 @@ tolerations: []
 topologySpreadConstraints:
   - labelSelector:
       matchLabels:
-        app: example-service
+        app.kubernetes.io/name: side-project-chart
+        app.kubernetes.io/instance: {{ .Release.Name }}
     maxSkew: 1
     topologyKey: topology.kubernetes.io/zone
     whenUnsatisfiable: DoNotSchedule
@@ -117,7 +118,7 @@ affinity:
     requiredDuringSchedulingIgnoredDuringExecution:
     - labelSelector:
         matchExpressions:
-        - key: app
+        - key: app.kubernetes.io/name
           operator: In
           values:
           - side-project
@@ -134,3 +135,10 @@ nodeAffinity:
         operator: In
         values:
         - side-project
+istio:
+  enabled: false
+  namespace: ""
+  ingressSelector: ingressgateway
+  retries:
+    attempts: 3
+    perTryTimeout: 2s
