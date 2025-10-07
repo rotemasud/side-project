@@ -153,3 +153,15 @@ variable "argocd_values_file" {
   type        = string
   default     = null
 }
+
+variable "apply_karpenter_yaml" {
+  description = "Apply karpenter.yaml manifests after EKS is ready"
+  type        = bool
+  default     = true
+}
+
+variable "karpenter_yaml_path" {
+  description = "Path to the karpenter YAML manifest file"
+  type        = string
+  default     = "${path.root}/karpenter.yaml"
+}

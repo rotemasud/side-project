@@ -82,11 +82,8 @@ module "eks" {
   cluster_endpoint_public_access           = true
   enable_cluster_creator_admin_permissions = true
 
-  cluster_addons = {
-    aws-ebs-csi-driver = {
-      service_account_role_arn = module.irsa_ebs_csi.iam_role_arn
-    }
-  }
+  # No cluster_addons here; EBS CSI is installed via eks-tools module
+  cluster_addons = {}
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
@@ -108,28 +105,7 @@ module "eks" {
     }
   }
 
-  karpenter_enabled     = var.karpenter_enabled
-  karpenter_values_file = var.karpenter_values_file
-  karpenter_controller_role_arn   = aws_iam_role.karpenter_controller.arn
-  karpenter_interruption_queue_name = aws_sqs_queue.karpenter_interruption.name
-  aws_region = var.region
-
-  # These variables are being passed from the root module to the EKS module.
-  # Although they are defined as variables in the EKS module, we need to pass values from the root module
-  # if we want to control Istio installation/configuration from here.
-  # If you do not want to expose these as configurable from the root, you can remove them and rely on the EKS module defaults.
-  istio_enabled              = var.istio_enabled
-  istio_namespace            = var.istio_namespace
-  istio_repository           = var.istio_repository
-  istiod_values_file         = var.istiod_values_file
-  istio_ingress_enabled      = var.istio_ingress_enabled
-  istio_ingress_values_file  = var.istio_ingress_values_file
-
-  # Argo CD
-  argocd_enabled      = var.argocd_enabled
-  argocd_namespace    = var.argocd_namespace
-  argocd_repository   = var.argocd_repository
-  argocd_values_file  = var.argocd_values_file
+  # Tooling (Istio, ArgoCD, Karpenter, EBS CSI) moved to eks-tools module
 
 
 }
@@ -162,16 +138,49 @@ provider "helm" {
 }
 
 # https://aws.amazon.com/blogs/containers/amazon-ebs-csi-driver-is-now-generally-available-in-amazon-eks-add-ons/ 
-module "irsa_ebs_csi" {
-  source = "./modules/irsa-ebs-csi"
-
-  cluster_name = module.eks.cluster_name
-  provider_url = module.eks.oidc_provider
-}
-
-
 module "ecr" {
   source = "./modules/ecr"
 }
 
+module "eks_tools" {
+  source = "./modules/eks-tools"
+
+  providers = {
+    helm        = helm.eks
+    kubernetes  = kubernetes.eks
+  }
+
+  cluster_name = module.eks.cluster_name
+  oidc_provider = module.eks.oidc_provider
+  aws_region   = var.region
+
+  # EBS CSI
+  ebs_csi_enabled       = true
+  ebs_csi_irsa_enabled  = true
+
+  # Karpenter
+  karpenter_enabled                   = var.karpenter_enabled
+  karpenter_namespace                 = "karpenter"
+  karpenter_controller_role_arn       = aws_iam_role.karpenter_controller.arn
+  karpenter_interruption_queue_name   = aws_sqs_queue.karpenter_interruption.name
+  karpenter_values_file               = var.karpenter_values_file
+
+  # Karpenter manifests
+  apply_karpenter_yaml = var.apply_karpenter_yaml
+  karpenter_yaml_path  = var.karpenter_yaml_path
+
+  # Istio
+  istio_enabled             = var.istio_enabled
+  istio_namespace           = var.istio_namespace
+  istio_repository          = var.istio_repository
+  istiod_values_file        = var.istiod_values_file
+  istio_ingress_enabled     = var.istio_ingress_enabled
+  istio_ingress_values_file = var.istio_ingress_values_file
+
+  # Argo CD
+  argocd_enabled     = var.argocd_enabled
+  argocd_namespace   = var.argocd_namespace
+  argocd_repository  = var.argocd_repository
+  argocd_values_file = var.argocd_values_file
+}
 
