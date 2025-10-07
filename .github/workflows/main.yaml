@@ -51,12 +51,3 @@ jobs:
           echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
           echo "image_tag=$IMAGE_TAG" 
           echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-
-      - name: Package and push Helm Chart to Amazon ECR
-        shell: bash
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: side-project-chart
-        run : |
-          helm package side-project-chart --app-version ${{ inputs.tag_name }} --version ${{ inputs.tag_name }}
-          helm push "side-project-chart-${{ inputs.tag_name }}.tgz" oci://$ECR_REGISTRY

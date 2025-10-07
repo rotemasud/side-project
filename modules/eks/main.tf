@@ -72,6 +72,25 @@ resource "helm_release" "istio_ingress" {
   depends_on = [helm_release.istiod]
 }
 
+########################
+# Argo CD via Helm
+########################
+
+resource "helm_release" "argocd" {
+  count = var.argocd_enabled ? 1 : 0
+
+  name       = "argo-cd"
+  repository = var.argocd_repository
+  chart      = "argo-cd"
+  namespace  = var.argocd_namespace
+
+  create_namespace = true
+
+  values = var.argocd_values_file != null ? [file(var.argocd_values_file)] : []
+
+  depends_on = [module.eks]
+}
+
 output "cluster_name" {
   value = module.eks.cluster_name
 }

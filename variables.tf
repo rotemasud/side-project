@@ -129,3 +129,27 @@ variable "istio_ingress_values_file" {
   type        = string
   default     = null
 }
+
+variable "argocd_enabled" {
+  description = "Install Argo CD via Helm"
+  type        = bool
+  default     = false
+}
+
+variable "argocd_namespace" {
+  description = "Namespace for Argo CD"
+  type        = string
+  default     = "argocd"
+}
+
+variable "argocd_repository" {
+  description = "Helm repository for Argo CD chart"
+  type        = string
+  default     = "https://argoproj.github.io/argo-helm"
+}
+
+variable "argocd_values_file" {
+  description = "Optional values file for Argo CD chart"
+  type        = string
+  default     = null
+}

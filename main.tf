@@ -125,6 +125,12 @@ module "eks" {
   istio_ingress_enabled      = var.istio_ingress_enabled
   istio_ingress_values_file  = var.istio_ingress_values_file
 
+  # Argo CD
+  argocd_enabled      = var.argocd_enabled
+  argocd_namespace    = var.argocd_namespace
+  argocd_repository   = var.argocd_repository
+  argocd_values_file  = var.argocd_values_file
+
 
 }
 
