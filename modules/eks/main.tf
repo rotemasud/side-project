@@ -25,6 +25,53 @@ module "eks" {
   eks_managed_node_groups         = var.eks_managed_node_groups
 }
 
+########################
+# Istio via Helm
+########################
+# The following variables are already defined in variables.tf and do not need to be redefined here.
+
+# Install base CRDs
+resource "helm_release" "istio_base" {
+  count = var.istio_enabled ? 1 : 0
+
+  name       = "istio-base"
+  repository = var.istio_repository
+  chart      = "base"
+  namespace  = var.istio_namespace
+
+  create_namespace = true
+
+  depends_on = [module.eks]
+}
+
+# Install istiod control plane
+resource "helm_release" "istiod" {
+  count = var.istio_enabled ? 1 : 0
+
+  name       = "istiod"
+  repository = var.istio_repository
+  chart      = "istiod"
+  namespace  = var.istio_namespace
+
+  values = var.istiod_values_file != null ? [file(var.istiod_values_file)] : []
+
+  depends_on = [helm_release.istio_base]
+}
+
+# Install ingress gateway (optional)
+resource "helm_release" "istio_ingress" {
+  count = var.istio_enabled && var.istio_ingress_enabled ? 1 : 0
+
+  name       = "istio-ingress"
+  repository = var.istio_repository
+  chart      = "gateway"
+  namespace  = var.istio_namespace
+
+  values = var.istio_ingress_values_file != null ? [file(var.istio_ingress_values_file)] : []
+
+  depends_on = [helm_release.istiod]
+}
+
 output "cluster_name" {
   value = module.eks.cluster_name
 }

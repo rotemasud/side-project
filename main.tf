@@ -113,6 +113,19 @@ module "eks" {
   karpenter_controller_role_arn   = aws_iam_role.karpenter_controller.arn
   karpenter_interruption_queue_name = aws_sqs_queue.karpenter_interruption.name
   aws_region = var.region
+
+  # These variables are being passed from the root module to the EKS module.
+  # Although they are defined as variables in the EKS module, we need to pass values from the root module
+  # if we want to control Istio installation/configuration from here.
+  # If you do not want to expose these as configurable from the root, you can remove them and rely on the EKS module defaults.
+  istio_enabled              = var.istio_enabled
+  istio_namespace            = var.istio_namespace
+  istio_repository           = var.istio_repository
+  istiod_values_file         = var.istiod_values_file
+  istio_ingress_enabled      = var.istio_ingress_enabled
+  istio_ingress_values_file  = var.istio_ingress_values_file
+
+
 }
 
 data "aws_eks_cluster" "this" {
