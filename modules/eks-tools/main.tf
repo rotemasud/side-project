@@ -132,8 +132,8 @@ resource "helm_release" "karpenter" {
     serviceAccount = {
       create = true
       name   = "karpenter"
-      annotations = var.karpenter_controller_role_arn != null ? {
-        "eks.amazonaws.com/role-arn" = var.karpenter_controller_role_arn
+      annotations = local.controller_role_arn_resolved != null ? {
+        "eks.amazonaws.com/role-arn" = local.controller_role_arn_resolved
       } : {}
     }
     settings = {
@@ -145,12 +145,15 @@ resource "helm_release" "karpenter" {
         { name = "AWS_DEFAULT_REGION", value = var.aws_region }
       ]
     }
-    interruptionQueue = var.karpenter_interruption_queue_name
+    interruptionQueue = local.interruption_queue_name_resolved
   })]
 }
 
 locals {
-  karpenter_documents = var.apply_karpenter_yaml ? [for d in split("---\n", file(var.karpenter_yaml_path)) : d if trim(d) != ""] : []
+  karpenter_yaml_path_resolved = var.karpenter_yaml_path != null ? var.karpenter_yaml_path : "${path.module}/karpenter.yaml"
+  karpenter_documents = var.apply_karpenter_yaml ? [for d in split("---\n", file(local.karpenter_yaml_path_resolved)) : d if trim(d) != ""] : []
+  controller_role_arn_resolved = var.karpenter_controller_role_arn != null ? var.karpenter_controller_role_arn : (try(aws_iam_role.karpenter_controller[0].arn, null))
+  interruption_queue_name_resolved = var.karpenter_interruption_queue_name != null ? var.karpenter_interruption_queue_name : (try(aws_sqs_queue.karpenter_interruption[0].name, null))
 }
 
 resource "kubernetes_manifest" "karpenter_docs" {

@@ -154,6 +154,10 @@ module "eks_tools" {
   oidc_provider = module.eks.oidc_provider
   aws_region   = var.region
 
+  # Discovery tags
+  private_subnets = module.vpc.private_subnets
+  cluster_security_group_id = module.eks.cluster_security_group_id
+
   # EBS CSI
   ebs_csi_enabled       = true
   ebs_csi_irsa_enabled  = true
@@ -161,13 +165,13 @@ module "eks_tools" {
   # Karpenter
   karpenter_enabled                   = var.karpenter_enabled
   karpenter_namespace                 = "karpenter"
-  karpenter_controller_role_arn       = aws_iam_role.karpenter_controller.arn
-  karpenter_interruption_queue_name   = aws_sqs_queue.karpenter_interruption.name
+  karpenter_controller_role_arn       = null
+  karpenter_interruption_queue_name   = null
   karpenter_values_file               = var.karpenter_values_file
 
   # Karpenter manifests
   apply_karpenter_yaml = var.apply_karpenter_yaml
-  karpenter_yaml_path  = var.karpenter_yaml_path
+  karpenter_yaml_path  = null  # Use module's local karpenter.yaml
 
   # Istio
   istio_enabled             = var.istio_enabled

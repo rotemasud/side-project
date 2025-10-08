@@ -100,4 +100,15 @@ variable "karpenter_yaml_path" {
   default = null
 }
 
+# Discovery tags variables
+variable "private_subnets" {
+  type        = list(string)
+  description = "List of private subnet IDs for Karpenter discovery tags"
+}
+
+variable "cluster_security_group_id" {
+  type        = string
+  description = "EKS cluster security group ID for Karpenter discovery tags"
+}
+
 
