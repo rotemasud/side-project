@@ -28,16 +28,24 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext:
+  # PSA restricted level requirements
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+securityContext:
+  # PSA restricted level requirements
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+    - ALL
 
 service:
   type: ClusterIP
@@ -135,9 +143,24 @@ nodeAffinity:
         operator: In
         values:
         - side-project
+# Namespace configuration
+namespace:
+  # Specifies whether a namespace should be created
+  create: true
+  # The name of the namespace to use/create
+  name: runtime
+  # Labels to add to the namespace
+  labels:
+    # Pod Security Standards - choose one of: restricted, baseline, privileged
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/warn: baseline
+  # Annotations to add to the namespace
+  annotations: {}
+
 istio:
   enabled: false
-  namespace: ""
+  namespace: runtime
   ingressSelector: ingressgateway
   retries:
     attempts: 3

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "side-project-chart.fullname" . }}-test-psa"
+  labels:
+    {{- include "side-project-chart.labels" . | nindent 4 }}
+spec:
+  restartPolicy: Never
+  containers:
+  - name: test-psa
+    image: busybox:1.35
+    command: ['sh', '-c', 'echo "PSA test passed"']
+    securityContext:
+      {{- toYaml .Values.securityContext | nindent 6 }}
+  securityContext:
+    {{- toYaml .Values.podSecurityContext | nindent 4 }}

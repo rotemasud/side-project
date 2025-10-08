@@ -35,6 +35,7 @@ This project demonstrates a complete cloud-native application stack:
 - **Network policies**: Istio security policies (when enabled)
 - **Resource limits**: CPU and memory constraints
 - **Pod security**: Security contexts configured
+- **Pod Security Standards (PSS)**: Baseline level enforcement
 
 
 ### Karpenter Node Provisioning
