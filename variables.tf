@@ -163,5 +163,5 @@ variable "apply_karpenter_yaml" {
 variable "karpenter_yaml_path" {
   description = "Path to the karpenter YAML manifest file"
   type        = string
-  default     = "${path.root}/karpenter.yaml"
+  default     = null
 }

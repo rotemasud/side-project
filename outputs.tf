@@ -18,10 +18,6 @@ output "eks_cluster_security_group_id" {
   value = module.eks.cluster_security_group_id
 }
 
-output "irsa_ebs_csi_role_arn" {
-  value = module.irsa_ebs_csi.iam_role_arn
-}
-
 output "ecr_repository_url" {
   value       = module.ecr.aws_ecr_repository_url
   description = "URL of the ECR repository"

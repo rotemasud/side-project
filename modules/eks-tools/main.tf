@@ -6,6 +6,10 @@ terraform {
     kubernetes = {
       source = "hashicorp/kubernetes"
     }
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = ">= 1.14.0"
+    }
   }
 }
 
@@ -151,14 +155,16 @@ resource "helm_release" "karpenter" {
 
 locals {
   karpenter_yaml_path_resolved = var.karpenter_yaml_path != null ? var.karpenter_yaml_path : "${path.module}/karpenter.yaml"
-  karpenter_documents = var.apply_karpenter_yaml ? [for d in split("---\n", file(local.karpenter_yaml_path_resolved)) : d if trim(d) != ""] : []
+  karpenter_documents = var.apply_karpenter_yaml ? [for d in split("---\n", file(local.karpenter_yaml_path_resolved)) : d if trimspace(d) != ""] : []
   controller_role_arn_resolved = var.karpenter_controller_role_arn != null ? var.karpenter_controller_role_arn : (try(aws_iam_role.karpenter_controller[0].arn, null))
   interruption_queue_name_resolved = var.karpenter_interruption_queue_name != null ? var.karpenter_interruption_queue_name : (try(aws_sqs_queue.karpenter_interruption[0].name, null))
 }
 
-resource "kubernetes_manifest" "karpenter_docs" {
-  count    = var.apply_karpenter_yaml ? length(local.karpenter_documents) : 0
-  manifest = yamldecode(element(local.karpenter_documents, count.index))
+resource "kubectl_manifest" "karpenter_docs" {
+  count     = var.apply_karpenter_yaml ? length(local.karpenter_documents) : 0
+  yaml_body = element(local.karpenter_documents, count.index)
+  
+  depends_on = [helm_release.karpenter]
 }
 
 
