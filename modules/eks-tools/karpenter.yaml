@@ -19,16 +19,19 @@ spec:
         - key: karpenter.sh/capacity-type
           operator: In
           values: ["spot", "on-demand"]
+        - key: karpenter.k8s.aws/instance-size
+          operator: In
+          values: ["small"]
         - key: karpenter.k8s.aws/instance-family
           operator: In
-          values: ["t4g", "m6g"]
+          values: ["t4g"]
         - key: topology.kubernetes.io/zone
           operator: In
           values: ["il-central-1a", "il-central-1b", "il-central-1c"]
       nodeClassRef:
         name: side-project
   limits:
-    cpu: 1000
+    cpu: 6
   disruption:
     consolidationPolicy: WhenUnderutilized
     expireAfter: 720h # 30 * 24h = 720h
