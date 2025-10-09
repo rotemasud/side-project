@@ -24,6 +24,35 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update application version in application.properties
+        shell: bash
+        run: |
+          sed -i "s/app.version=.*/app.version=${{ inputs.tag_name }}/" src/main/resources/application.properties
+          echo "Updated application.properties with version ${{ inputs.tag_name }}"
+
+      - name: Update Chart.yaml appVersion
+        shell: bash
+        run: |
+          sed -i 's/appVersion: .*/appVersion: "${{ inputs.tag_name }}"/' side-project-chart/Chart.yaml
+          echo "Updated Chart.yaml with appVersion ${{ inputs.tag_name }}"
+
+      - name: Update values.yaml image tag
+        shell: bash
+        run: |
+          sed -i 's/tag: .*/tag: "${{ inputs.tag_name }}"/' side-project-chart/values.yaml
+          echo "Updated values.yaml with image tag ${{ inputs.tag_name }}"
+
+      - name: Commit and push version updates
+        shell: bash
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/main/resources/application.properties side-project-chart/Chart.yaml side-project-chart/values.yaml
+          git diff --cached --quiet || git commit -m "chore: bump version to ${{ inputs.tag_name }}"
+          git push
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -47,16 +76,17 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: side-project-test
-          IMAGE_TAG: latest
+          IMAGE_TAG: ${{ inputs.tag_name }}
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --push \
             -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:latest" \
             .
           echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
-          echo "image_tag=$IMAGE_TAG" 
-          echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
 #      - name: Configure kubectl for EKS
 #        shell: bash

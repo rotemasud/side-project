@@ -8,7 +8,7 @@ image:
   repository: side-project-repo
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "1"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -165,3 +165,55 @@ istio:
   retries:
     attempts: 3
     perTryTimeout: 2s
+
+# ArgoCD Rollout configuration
+rollout:
+  # Deployment strategy: canary or blueGreen
+  strategy: canary
+  # Number of old ReplicaSets to retain for rollback
+  revisionHistoryLimit: 3
+  
+  # Canary strategy configuration
+  canary:
+    # Canary deployment steps
+    steps:
+      - setWeight: 20
+      - pause: {duration: 30s}
+      - setWeight: 40
+      - pause: {duration: 30s}
+      - setWeight: 60
+      - pause: {duration: 30s}
+      - setWeight: 80
+      - pause: {duration: 30s}
+    maxSurge: "25%"
+    maxUnavailable: 0
+    # Optional: Configure traffic routing (e.g., Istio, Nginx, ALB)
+    # trafficRouting:
+    #   istio:
+    #     virtualService:
+    #       name: side-project-vsvc
+    #       routes:
+    #         - primary
+    # Optional: Configure analysis runs during canary
+    # analysis:
+    #   templates:
+    #     - templateName: success-rate
+    #   startingStep: 2
+  
+  # Blue-Green strategy configuration (alternative to canary)
+  blueGreen:
+    # Automatically promote new version without manual approval
+    autoPromotionEnabled: false
+    # Time to wait before scaling down the old version
+    scaleDownDelaySeconds: 30
+    # Enable preview service for testing before promotion (creates a separate preview-service.yaml)
+    # Set to true if you want to test the new version at <service-name>-preview before promoting
+    previewService: true
+    # Optional: Run analysis before promoting
+    # prePromotionAnalysis:
+    #   templates:
+    #     - templateName: smoke-tests
+    # Optional: Run analysis after promoting
+    # postPromotionAnalysis:
+    #   templates:
+    #     - templateName: smoke-tests
