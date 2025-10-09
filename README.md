@@ -2,29 +2,28 @@
 
 A comprehensive cloud-native Spring Boot application deployed on AWS EKS with modern DevOps practices including Infrastructure as Code, GitOps, and observability.
 
-## 🏗️ Architecture Overview
+## 🏗️ Infrastructure & Platform
 
-This project demonstrates a complete cloud-native application stack:
-
-- **Application**: Spring Boot 3.3.1 with Java 17
-- **Infrastructure**: AWS EKS cluster with Terraform
+- **Compute**: AWS EKS (Elastic Kubernetes Service)
+- **Infrastructure as Code**: Terraform with modular architecture
 - **Container Orchestration**: Kubernetes with Helm charts
 - **GitOps**: ArgoCD for continuous deployment
-- **Service Mesh**: Istio (optional)
-- **Auto-scaling**: Karpenter for node provisioning
+- **Progressive Delivery**: Argo Rollouts (Canary & Blue-Green strategies)
+- **Auto-scaling**: Karpenter for intelligent node provisioning
+- **Service Mesh**: Istio for traffic management
 - **Observability**: Prometheus metrics and monitoring
-- **Storage**: EBS CSI driver for persistent volumes
+- **Storage**: AWS EBS CSI driver for persistent volumes
 
-## 🚀 Features
+## 🚀 Application Features
 
-- **Spring Boot Web Application**: RESTful API with health checks and metrics
-- **Containerized**: Multi-stage Docker build with security best practices
-- **Kubernetes Ready**: Complete Helm chart with HPA, service mesh, and ingress
-- **Infrastructure as Code**: Terraform modules for AWS resources
-- **GitOps Workflow**: ArgoCD for automated deployments
-- **Auto-scaling**: Horizontal Pod Autoscaler and Karpenter node provisioning
-- **Monitoring**: Prometheus metrics exposure and health endpoints
-- **Security**: Non-root container user and proper RBAC
+- **REST API**: Spring Boot 3.3.1 web application with Java 17
+- **Health & Metrics**: Actuator endpoints with Prometheus integration
+- **Container Security**: Multi-stage Docker build, non-root user (UID 1000)
+- **Pod Security Standards**: Baseline PSS enforcement with proper security contexts
+- **High Availability**: Multi-AZ deployment with pod anti-affinity rules
+- **Auto-scaling**: Horizontal Pod Autoscaler based on CPU/memory
+- **Progressive Deployments**: Automated canary rollouts with traffic shifting
+- **Service Discovery**: Kubernetes services with Istio virtual services
 
 ```
 
