@@ -5,7 +5,7 @@ COPY pom.xml /usr/src/app
 
 RUN mvn -f /usr/src/app/pom.xml clean package
 
-FROM  eclipse-temurin:17-jre-alpine
+FROM  bellsoft/liberica-openjre-alpine:17
 
 RUN adduser --no-create-home -u 1000 -D appuser
 
