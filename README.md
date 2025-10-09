@@ -33,7 +33,6 @@ This project demonstrates a complete cloud-native application stack:
 - **Non-root container**: Application runs as user 1000
 - **RBAC**: Proper Kubernetes service accounts
 - **Network policies**: Istio security policies (when enabled)
-- **Resource limits**: CPU and memory constraints
 - **Pod security**: Security contexts configured
 - **Pod Security Standards (PSS)**: Baseline level enforcement
 
