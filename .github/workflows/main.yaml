@@ -58,15 +58,15 @@ jobs:
           echo "image_tag=$IMAGE_TAG" 
           echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Configure kubectl for EKS
-        shell: bash
-        run: |
-          aws eks update-kubeconfig --name side-project-eks --region il-central-1
-          kubectl get nodes
-
-      - name: apply application to ArgoCD
-        id: apply-application
-        shell: bash
-        run: |
-          kubectl apply -f argocd/application.yaml
-          echo "Application is applied to ArgoCD"
+#      - name: Configure kubectl for EKS
+#        shell: bash
+#        run: |
+#          aws eks update-kubeconfig --name side-project-eks --region il-central-1
+#          kubectl get nodes
+#
+#      - name: apply application to ArgoCD
+#        id: apply-application
+#        shell: bash
+#        run: |
+#          kubectl apply -f argocd/application.yaml
+#          echo "Application is applied to ArgoCD"
