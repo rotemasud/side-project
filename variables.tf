@@ -82,6 +82,12 @@ variable "node_group_desired_size" {
   default     = 2
 }
 
+variable "aws_lb_controller_enabled" {
+  description = "Install AWS Load Balancer Controller via Helm"
+  type        = bool
+  default     = true
+}
+
 variable "karpenter_enabled" {
   description = "Install Karpenter via Helm"
   type        = bool

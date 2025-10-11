@@ -119,6 +119,37 @@ resource "helm_release" "argocd" {
 }
 
 ########################
+# AWS Load Balancer Controller via Helm
+########################
+
+resource "helm_release" "aws_lb_controller" {
+  count = var.aws_lb_controller_enabled ? 1 : 0
+
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = var.aws_lb_controller_namespace
+
+  create_namespace = true
+
+  values = concat(
+    var.aws_lb_controller_values_file != null ? [file(var.aws_lb_controller_values_file)] : [],
+    [yamlencode({
+      clusterName = var.cluster_name
+      region      = var.aws_region
+      vpcId       = var.vpc_id
+      serviceAccount = {
+        create = true
+        name   = var.aws_lb_controller_service_account
+        annotations = {
+          "eks.amazonaws.com/role-arn" = aws_iam_role.aws_lb_controller[0].arn
+        }
+      }
+    })]
+  )
+}
+
+########################
 # Karpenter via Helm + optional manifests
 ########################
 

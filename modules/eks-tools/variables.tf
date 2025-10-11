@@ -100,6 +100,28 @@ variable "karpenter_yaml_path" {
   default = null
 }
 
+# AWS Load Balancer Controller
+variable "aws_lb_controller_enabled" {
+  type    = bool
+  default = true
+}
+variable "aws_lb_controller_namespace" {
+  type    = string
+  default = "kube-system"
+}
+variable "aws_lb_controller_service_account" {
+  type    = string
+  default = "aws-load-balancer-controller"
+}
+variable "aws_lb_controller_values_file" {
+  type    = string
+  default = null
+}
+variable "vpc_id" {
+  type        = string
+  description = "VPC ID where the EKS cluster is deployed"
+}
+
 # Discovery tags variables
 variable "private_subnets" {
   type        = list(string)

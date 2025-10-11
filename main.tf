@@ -162,6 +162,7 @@ module "eks_tools" {
   cluster_name = module.eks.cluster_name
   oidc_provider = module.eks.oidc_provider
   aws_region   = var.region
+  vpc_id       = module.vpc.vpc_id
 
   # Discovery tags
   private_subnets = module.vpc.private_subnets
@@ -170,6 +171,9 @@ module "eks_tools" {
   # EBS CSI
   ebs_csi_enabled       = true
   ebs_csi_irsa_enabled  = true
+
+  # AWS Load Balancer Controller
+  aws_lb_controller_enabled = var.aws_lb_controller_enabled
 
   # Karpenter
   karpenter_enabled                   = var.karpenter_enabled
