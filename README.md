@@ -10,7 +10,7 @@ A comprehensive cloud-native Spring Boot application deployed on AWS EKS with mo
 - **GitOps**: ArgoCD for continuous deployment
 - **Progressive Delivery**: Argo Rollouts (Canary & Blue-Green strategies)
 - **Auto-scaling**: Karpenter for intelligent node provisioning
-- **Service Mesh**: Istio for traffic management with zone-aware routing
+- **Service Mesh**: Istio for traffic management with zone-aware routing (traffic from one AZ remains in the same AZ)
 - **Observability**: Prometheus metrics and monitoring
 - **Storage**: AWS EBS CSI driver for persistent volumes
 
