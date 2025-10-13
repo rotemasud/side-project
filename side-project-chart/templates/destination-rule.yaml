@@ -1,0 +1,31 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ include "side-project-chart.fullname" . }}-dr
+  namespace: {{ .Values.istio.namespace | default .Release.Namespace }}
+spec:
+  host: {{ include "side-project-chart.fullname" . }}
+  {{- if .Values.istio.topologyAwareRouting.enabled }}
+  trafficPolicy:
+    loadBalancer:
+      localityLbSetting:
+        enabled: {{ .Values.istio.topologyAwareRouting.enabled }}
+        {{- if .Values.istio.topologyAwareRouting.distribute }}
+        distribute:
+        {{- toYaml .Values.istio.topologyAwareRouting.distribute | nindent 8 }}
+        {{- end }}
+        {{- if .Values.istio.topologyAwareRouting.failover }}
+        failover:
+        {{- toYaml .Values.istio.topologyAwareRouting.failover | nindent 8 }}
+        {{- end }}
+    {{- if .Values.istio.topologyAwareRouting.outlierDetection.enabled }}
+    outlierDetection:
+      consecutive5xxErrors: {{ .Values.istio.topologyAwareRouting.outlierDetection.consecutive5xxErrors }}
+      interval: {{ .Values.istio.topologyAwareRouting.outlierDetection.interval }}
+      baseEjectionTime: {{ .Values.istio.topologyAwareRouting.outlierDetection.baseEjectionTime }}
+      maxEjectionPercent: {{ .Values.istio.topologyAwareRouting.outlierDetection.maxEjectionPercent }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+

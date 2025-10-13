@@ -179,6 +179,39 @@ istio:
   retries:
     attempts: 3
     perTryTimeout: 2s
+  
+  # Topology Aware Routing configuration
+  # This ensures traffic stays within the same availability zone
+  topologyAwareRouting:
+    enabled: true
+    # Outlier detection helps remove unhealthy endpoints from the load balancing pool
+    outlierDetection:
+      enabled: true
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    # Distribute configuration: Keep traffic in the same zone
+    # This uses a wildcard (*) to apply the rule to all zones
+    # Traffic from any zone will stay 100% in that same zone
+    distribute:
+      - from: il-central-1a
+        to:
+          il-central-1a: 100
+      - from: il-central-1b
+        to:
+          il-central-1b: 100
+      - from: il-central-1c
+        to:
+          il-central-1c: 100
+    # Enable failover: if one AZ is down, traffic fails over to the next specified AZ
+    failover:
+      - from: il-central-1a
+        to: il-central-1b
+      - from: il-central-1b
+        to: il-central-1c
+      - from: il-central-1c
+        to: il-central-1a
 
 # ArgoCD Rollout configuration
 rollout:
