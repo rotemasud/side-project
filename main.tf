@@ -1,14 +1,14 @@
 provider "aws" {
   region = "il-central-1"
-  
+
 }
 
 terraform {
   backend "s3" {
-    bucket  = "my-terraform-backend-store-side-project"
-    encrypt = true
-    key     = "terraform.tfstate"
-    region  = "il-central-1"
+    bucket         = "my-terraform-backend-store-side-project"
+    encrypt        = true
+    key            = "terraform.tfstate"
+    region         = "il-central-1"
     dynamodb_table = "terraform-state-lock-dynamo"
   }
 }
@@ -129,7 +129,7 @@ provider "kubernetes" {
 
 provider "helm" {
   alias = "eks"
-  
+
   kubernetes {
     host                   = data.aws_eks_cluster.this.endpoint
     cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
@@ -154,37 +154,37 @@ module "eks_tools" {
   source = "./modules/eks-tools"
 
   providers = {
-    helm        = helm.eks
-    kubernetes  = kubernetes.eks
-    kubectl     = kubectl.eks
+    helm       = helm.eks
+    kubernetes = kubernetes.eks
+    kubectl    = kubectl.eks
   }
 
-  cluster_name = module.eks.cluster_name
+  cluster_name  = module.eks.cluster_name
   oidc_provider = module.eks.oidc_provider
-  aws_region   = var.region
-  vpc_id       = module.vpc.vpc_id
+  aws_region    = var.region
+  vpc_id        = module.vpc.vpc_id
 
   # Discovery tags
-  private_subnets = module.vpc.private_subnets
+  private_subnets           = module.vpc.private_subnets
   cluster_security_group_id = module.eks.cluster_security_group_id
 
   # EBS CSI
-  ebs_csi_enabled       = true
-  ebs_csi_irsa_enabled  = true
+  ebs_csi_enabled      = true
+  ebs_csi_irsa_enabled = true
 
   # AWS Load Balancer Controller
   aws_lb_controller_enabled = var.aws_lb_controller_enabled
 
   # Karpenter
-  karpenter_enabled                   = var.karpenter_enabled
-  karpenter_namespace                 = "karpenter"
-  karpenter_controller_role_arn       = null
-  karpenter_interruption_queue_name   = null
-  karpenter_values_file               = var.karpenter_values_file
+  karpenter_enabled                 = var.karpenter_enabled
+  karpenter_namespace               = "karpenter"
+  karpenter_controller_role_arn     = null
+  karpenter_interruption_queue_name = null
+  karpenter_values_file             = var.karpenter_values_file
 
   # Karpenter manifests
   apply_karpenter_yaml = var.apply_karpenter_yaml
-  karpenter_yaml_path  = null  # Use module's local karpenter.yaml
+  karpenter_yaml_path  = null # Use module's local karpenter.yaml
 
   # Istio
   istio_enabled             = var.istio_enabled
@@ -199,5 +199,12 @@ module "eks_tools" {
   argocd_namespace   = var.argocd_namespace
   argocd_repository  = var.argocd_repository
   argocd_values_file = var.argocd_values_file
+
+  # ECR ImagePullSecret
+  ecr_secret_enabled   = var.ecr_secret_enabled
+  ecr_secret_namespace = var.ecr_secret_namespace
+  ecr_secret_name      = var.ecr_secret_name
+  ecr_create_namespace = var.ecr_create_namespace
+  ecr_repository_arns  = [module.ecr.aws_ecr_repository_arn]
 }
 

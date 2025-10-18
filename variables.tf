@@ -160,6 +160,31 @@ variable "argocd_values_file" {
   default     = null
 }
 
+# ECR ImagePullSecret
+variable "ecr_secret_enabled" {
+  type        = bool
+  default     = true
+  description = "Enable automatic ECR imagePullSecret creation and renewal"
+}
+
+variable "ecr_secret_namespace" {
+  type        = string
+  default     = "runtime"
+  description = "Namespace where ECR imagePullSecret will be created"
+}
+
+variable "ecr_secret_name" {
+  type        = string
+  default     = "ecr-registry-secret"
+  description = "Name of the ECR imagePullSecret"
+}
+
+variable "ecr_create_namespace" {
+  type        = bool
+  default     = true
+  description = "Create the namespace if it doesn't exist"
+}
+
 variable "apply_karpenter_yaml" {
   description = "Apply karpenter.yaml manifests after EKS is ready"
   type        = bool

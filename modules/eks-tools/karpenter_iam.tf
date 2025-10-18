@@ -31,7 +31,7 @@ resource "aws_iam_role" "karpenter_controller" {
 # Minimal controller policy (based on Karpenter docs)
 data "aws_iam_policy_document" "karpenter_controller_policy" {
   statement {
-    sid     = "AllowEC2ReadAndProvisioning"
+    sid = "AllowEC2ReadAndProvisioning"
     actions = [
       "ec2:CreateLaunchTemplate",
       "ec2:DeleteLaunchTemplate",
@@ -45,12 +45,12 @@ data "aws_iam_policy_document" "karpenter_controller_policy" {
     resources = ["*"]
   }
   statement {
-    sid     = "AllowPassNodeRole"
-    actions = ["iam:PassRole"]
+    sid       = "AllowPassNodeRole"
+    actions   = ["iam:PassRole"]
     resources = var.karpenter_enabled ? [aws_iam_role.karpenter_node[0].arn] : []
   }
   statement {
-    sid     = "AllowInterruptionQueueAccess"
+    sid = "AllowInterruptionQueueAccess"
     actions = [
       "sqs:DeleteMessage",
       "sqs:GetQueueAttributes",
@@ -61,7 +61,7 @@ data "aws_iam_policy_document" "karpenter_controller_policy" {
 }
 
 resource "aws_iam_policy" "karpenter_controller" {
-  count = var.karpenter_enabled ? 1 : 0
+  count  = var.karpenter_enabled ? 1 : 0
   name   = "KarpenterControllerPolicy-${var.cluster_name}"
   policy = data.aws_iam_policy_document.karpenter_controller_policy.json
 }
@@ -75,7 +75,7 @@ resource "aws_iam_role_policy_attachment" "karpenter_controller_attach" {
 # Node role and instance profile
 resource "aws_iam_role" "karpenter_node" {
   count = var.karpenter_enabled ? 1 : 0
-  name = "KarpenterNodeRole-${var.cluster_name}"
+  name  = "KarpenterNodeRole-${var.cluster_name}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -108,8 +108,8 @@ resource "aws_iam_role_policy_attachment" "node_ecr" {
 
 resource "aws_iam_instance_profile" "karpenter_node" {
   count = var.karpenter_enabled ? 1 : 0
-  name = "KarpenterNodeInstanceProfile-${var.cluster_name}"
-  role = aws_iam_role.karpenter_node[0].name
+  name  = "KarpenterNodeInstanceProfile-${var.cluster_name}"
+  role  = aws_iam_role.karpenter_node[0].name
 }
 
 

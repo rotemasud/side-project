@@ -133,4 +133,34 @@ variable "cluster_security_group_id" {
   description = "EKS cluster security group ID for Karpenter discovery tags"
 }
 
+# ECR ImagePullSecret
+variable "ecr_secret_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable automatic ECR imagePullSecret creation and renewal"
+}
+
+variable "ecr_secret_namespace" {
+  type        = string
+  default     = "runtime"
+  description = "Namespace where ECR imagePullSecret will be created"
+}
+
+variable "ecr_secret_name" {
+  type        = string
+  default     = "ecr-registry-secret"
+  description = "Name of the ECR imagePullSecret"
+}
+
+variable "ecr_create_namespace" {
+  type        = bool
+  default     = true
+  description = "Create the namespace if it doesn't exist"
+}
+
+variable "ecr_repository_arns" {
+  type        = list(string)
+  default     = []
+  description = "List of ECR repository ARNs to grant pull access to"
+}
 

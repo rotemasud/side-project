@@ -23,8 +23,8 @@ data "aws_iam_policy" "ebs_csi_policy" {
 }
 
 module "irsa_ebs_csi_role" {
-  count  = var.ebs_csi_enabled && var.ebs_csi_irsa_enabled ? 1 : 0
-  source = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+  count   = var.ebs_csi_enabled && var.ebs_csi_irsa_enabled ? 1 : 0
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version = "5.39.0"
 
   create_role                   = true
@@ -185,16 +185,16 @@ resource "helm_release" "karpenter" {
 }
 
 locals {
-  karpenter_yaml_path_resolved = var.karpenter_yaml_path != null ? var.karpenter_yaml_path : "${path.module}/karpenter.yaml"
-  karpenter_documents = var.apply_karpenter_yaml ? [for d in split("---\n", file(local.karpenter_yaml_path_resolved)) : d if trimspace(d) != ""] : []
-  controller_role_arn_resolved = var.karpenter_controller_role_arn != null ? var.karpenter_controller_role_arn : (try(aws_iam_role.karpenter_controller[0].arn, null))
+  karpenter_yaml_path_resolved     = var.karpenter_yaml_path != null ? var.karpenter_yaml_path : "${path.module}/karpenter.yaml"
+  karpenter_documents              = var.apply_karpenter_yaml ? [for d in split("---\n", file(local.karpenter_yaml_path_resolved)) : d if trimspace(d) != ""] : []
+  controller_role_arn_resolved     = var.karpenter_controller_role_arn != null ? var.karpenter_controller_role_arn : (try(aws_iam_role.karpenter_controller[0].arn, null))
   interruption_queue_name_resolved = var.karpenter_interruption_queue_name != null ? var.karpenter_interruption_queue_name : (try(aws_sqs_queue.karpenter_interruption[0].name, null))
 }
 
 resource "kubectl_manifest" "karpenter_docs" {
   count     = var.apply_karpenter_yaml ? length(local.karpenter_documents) : 0
   yaml_body = element(local.karpenter_documents, count.index)
-  
+
   depends_on = [helm_release.karpenter]
 }
 

@@ -10,7 +10,7 @@ resource "aws_cloudwatch_event_rule" "interruption_spot" {
   name        = "KarpenterInterruptionSpot-${var.cluster_name}"
   description = "EC2 Spot Interruption Events to SQS"
   event_pattern = jsonencode({
-    source      : ["aws.ec2"],
+    source : ["aws.ec2"],
     detail-type : ["EC2 Spot Instance Interruption Warning"]
   })
 }
@@ -27,7 +27,7 @@ resource "aws_cloudwatch_event_rule" "interruption_state_change" {
   name        = "KarpenterInstanceStateChange-${var.cluster_name}"
   description = "EC2 Instance State-change notifications"
   event_pattern = jsonencode({
-    source      : ["aws.ec2"],
+    source : ["aws.ec2"],
     detail-type : ["EC2 Instance State-change Notification"]
   })
 }
@@ -40,7 +40,7 @@ resource "aws_cloudwatch_event_target" "interruption_state_change_target" {
 }
 
 resource "aws_sqs_queue_policy" "allow_events" {
-  count    = var.karpenter_enabled ? 1 : 0
+  count     = var.karpenter_enabled ? 1 : 0
   queue_url = aws_sqs_queue.karpenter_interruption[0].id
   policy = jsonencode({
     Version : "2012-10-17",

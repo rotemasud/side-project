@@ -14,10 +14,10 @@ resource "aws_ecr_lifecycle_policy" "main" {
     rules = [{
       rulePriority = 1
       description  = "keep last 10 images"
-      action       = {
+      action = {
         type = "expire"
       }
-      selection     = {
+      selection = {
         tagStatus   = "any"
         countType   = "imageCountMoreThan"
         countNumber = 10
@@ -27,5 +27,13 @@ resource "aws_ecr_lifecycle_policy" "main" {
 }
 
 output "aws_ecr_repository_url" {
-    value = aws_ecr_repository.main.repository_url
+  value = aws_ecr_repository.main.repository_url
+}
+
+output "aws_ecr_repository_arn" {
+  value = aws_ecr_repository.main.arn
+}
+
+output "aws_ecr_repository_name" {
+  value = aws_ecr_repository.main.name
 }
